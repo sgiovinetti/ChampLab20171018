@@ -1,0 +1,437 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachine_name": {
+      "type": "string",
+      "metadata": {
+        "description": "Use the following name: 'vm-<Your Champ Username>-ds' ex. 'vm-giost-ds'"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "User Name for the Virtual Machine"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine"
+      }
+    },
+    "securityRules_MSSQL_name": {
+      "defaultValue": "MSSQL",
+      "type": "string"
+    },
+    "securityRules_IPythonNB_name": {
+      "defaultValue": "IPythonNB",
+      "type": "string"
+    },
+    "securityRules_RTVSRemote_name": {
+      "defaultValue": "RTVSRemote",
+      "type": "string"
+    },
+    "securityRules_default_allow_rdp_name": {
+      "defaultValue": "default-allow-rdp",
+      "type": "string"
+    },
+    "networkInterfaces_id": {
+      "defaultValue": "/subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/resourceGroups/LabVirtualNetwork/providers/Microsoft.Network/virtualNetworks/ChampLabVNet/subnets/FrontEnd",
+      "type": "string"
+    }
+  },
+    "variables": {},
+    "resources": [
+      {
+        "type": "Microsoft.Compute/disks",
+        "name": "[concat(parameters('virtualMachine_name'), '_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
+        "apiVersion": "2016-04-30-preview",
+        "location": "westeurope",
+        "scale": null,
+        "properties": {
+          "accountType": "Premium_LRS",
+          "osType": "Windows",
+          "creationData": {
+            "createOption": "FromImage",
+            "imageReference": {
+              "id": "/Subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/Providers/Microsoft.Compute/Locations/westeurope/Publishers/microsoft-ads/ArtifactTypes/VMImage/Offers/standard-data-science-vm/Skus/standard-data-science-vm/Versions/latest"
+            }
+          },
+          "diskSizeGB": 128
+        },
+        "dependsOn": []
+      },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachine_name')]",
+            "apiVersion": "2016-04-30-preview",
+            "location": "westeurope",
+            "plan": {
+                "name": "standard-data-science-vm",
+                "product": "standard-data-science-vm",
+                "publisher": "microsoft-ads"
+            },
+            "scale": null,
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "microsoft-ads",
+                        "offer": "standard-data-science-vm",
+                        "sku": "standard-data-science-vm",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                      "managedDisk": {
+                        "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930'))]"
+                      }
+                    },
+                    "dataDisks": []
+                },
+              "osProfile": {
+                "computerName": "[parameters('virtualMachine_name')]",
+                "adminUsername": "[parameters('adminUsername')]",
+                "windowsConfiguration": {
+                  "provisionVMAgent": true,
+                  "enableAutomaticUpdates": true
+                },
+                "secrets": []
+              },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('virtualMachine_name'), 'nic'))]"
+                        }
+                    ]
+                }
+            },
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930'))]",
+            "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('virtualMachine_name'), 'nic'))]"
+          ]
+        },
+      {
+        "type": "microsoft.devtestlab/schedules",
+        "name": "[concat('shutdown-computevm-', parameters('virtualMachine_name'))]",
+        "apiVersion": "2016-05-15",
+        "location": "westeurope",
+        "scale": null,
+        "properties": {
+          "status": "Enabled",
+          "taskType": "ComputeVmShutdownTask",
+          "dailyRecurrence": {
+            "time": "1900"
+          },
+          "timeZoneId": "UTC",
+          "notificationSettings": {
+            "status": "Disabled",
+            "timeInMinutes": 30
+          },
+          "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[concat(parameters('virtualMachine_name'), 'nic')]",
+        "apiVersion": "2017-06-01",
+        "location": "westeurope",
+        "scale": null,
+        "properties": {         
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",           
+              "properties": {               
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[parameters('networkInterfaces_id')]"
+                },
+                "primary": true,
+                "privateIPAddressVersion": "IPv4"
+              }
+            }
+          ],
+          "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": []
+          },
+          "enableAcceleratedNetworking": false,
+          "enableIPForwarding": false,
+          "networkSecurityGroup": {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+          },
+          "primary": true,
+          "virtualMachine": {
+            "id": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+          }
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]",
+          "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[concat(parameters('virtualMachine_name'),'nsg')]",
+        "apiVersion": "2017-06-01",
+        "location": "westeurope",
+        "scale": null,
+        "properties": {          
+          "securityRules": [
+            {
+              "name": "IPythonNB",            
+              "properties": {                
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "9999",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1010,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "MSSQL",              
+              "properties": {                
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "1433",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1020,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "RTVSRemote",              
+              "properties": { 
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "5444",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1030,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "default-allow-rdp",  
+              "properties": {        
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1040,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            }
+          ],
+          "defaultSecurityRules": [
+            {
+              "name": "AllowVnetInBound", 
+              "properties": {
+                "description": "Allow inbound traffic from all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 65000,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "AllowAzureLoadBalancerInBound", 
+              "properties": { 
+                "description": "Allow inbound traffic from azure load balancer",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "AzureLoadBalancer",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 65001,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "DenyAllInBound",     
+              "properties": {         
+                "description": "Deny all inbound traffic",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Deny",
+                "priority": 65500,
+                "direction": "Inbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "AllowVnetOutBound",  
+              "properties": {
+                "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 65000,
+                "direction": "Outbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "AllowInternetOutBound",
+              "properties": {           
+                "description": "Allow outbound traffic from all VMs to Internet",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "Internet",
+                "access": "Allow",
+                "priority": 65001,
+                "direction": "Outbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "DenyAllOutBound", 
+              "properties": {
+                "description": "Deny all outbound traffic",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Deny",
+                "priority": 65500,
+                "direction": "Outbound",
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            }
+          ]
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_IPythonNB_name'))]",
+        "apiVersion": "2017-06-01",
+        "scale": null,
+        "properties": {      
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "9999",
+          "sourceAddressPrefix": "*",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 1010,
+          "direction": "Inbound",
+          "sourceAddressPrefixes": [],
+          "destinationAddressPrefixes": []
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_MSSQL_name'))]",
+        "apiVersion": "2017-06-01",
+        "scale": null,
+        "properties": {   
+          "protocol": "TCP",
+          "sourcePortRange": "*",
+          "destinationPortRange": "1433",
+          "sourceAddressPrefix": "*",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 1020,
+          "direction": "Inbound",
+          "sourceAddressPrefixes": [],
+          "destinationAddressPrefixes": []
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_RTVSRemote_name'))]",
+        "apiVersion": "2017-06-01",
+        "scale": null,
+        "properties": {
+          "protocol": "TCP",
+          "sourcePortRange": "*",
+          "destinationPortRange": "5444",
+          "sourceAddressPrefix": "*",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 1030,
+          "direction": "Inbound",
+          "sourceAddressPrefixes": [],
+          "destinationAddressPrefixes": []
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_default_allow_rdp_name'))]",
+        "apiVersion": "2017-06-01",
+        "scale": null,
+        "properties": {
+          "protocol": "TCP",
+          "sourcePortRange": "*",
+          "destinationPortRange": "3389",
+          "sourceAddressPrefix": "*",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 1040,
+          "direction": "Inbound",
+          "sourceAddressPrefixes": [],
+          "destinationAddressPrefixes": []
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+        ]
+      }
+    ]
+}
