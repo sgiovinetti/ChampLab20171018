@@ -1,3 +1,8 @@
-# Blank Template
+# Azure Data Science Virtual Machine for Champ Hands-on LAB
 
-This is an empty template, with the schema reference and top-level properties defined.
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsgiovinetti%2FChampLab20171018%2Fmaster%2FARMScripts%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fsgiovinetti%2FChampLab20171018%2Fmaster%2FARMScripts%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
