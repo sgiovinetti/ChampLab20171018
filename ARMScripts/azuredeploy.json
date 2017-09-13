@@ -176,8 +176,7 @@
           }
         },
         "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]",
-          "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
         ]
       },
       {
