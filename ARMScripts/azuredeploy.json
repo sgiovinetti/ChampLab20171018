@@ -84,14 +84,8 @@
                         "sku": "standard-data-science-vm",
                         "version": "latest"
                     },
-                   "osDisk": {
-                        "osType": "Windows",
-                        "caching": "ReadWrite",
-                        "createOption": "FromImage",
-                        "name": "OSDisk",
-                        "managedDisk": {
-                            "storageAccountType": "Premium_LRS"
-                        }
+                    "osDisk": {
+                       "createOption": "FromImage"                       
                     },
                     "dataDisks": []
                 },
