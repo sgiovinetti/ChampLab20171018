@@ -88,9 +88,7 @@
                         "osType": "Windows",
                         "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
                         "createOption": "FromImage",
-                        "caching": "ReadWrite",
-                      "managedDisk": {
-                        "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930'))]"
+                        "caching": "ReadWrite"
                       }
                     },
                     "dataDisks": []
