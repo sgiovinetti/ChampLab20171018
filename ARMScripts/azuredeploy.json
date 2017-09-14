@@ -71,7 +71,7 @@
                   "version": "latest"
                 },
                 "osDisk": {
-                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
+                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1')]",
                   "caching": "ReadWrite",
                   "createOption": "FromImage",
                   "managedDisk": {
