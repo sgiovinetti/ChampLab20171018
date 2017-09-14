@@ -5,7 +5,7 @@
     "virtualMachine_name": {
       "type": "string",
       "metadata": {
-        "description": "Use the following name: vm-<Your Champ Username>-ds ex. vm-giost-ds"
+        "description": "Use the following name: vm-YourChampUsername-ds ex. vm-giost-ds"
       }
     },
     "adminUsername": {
@@ -71,9 +71,10 @@
                   "version": "latest"
                 },
                 "osDisk": {
-                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1')]",
+                  "osType": "Windows",
+                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
                   "caching": "ReadWrite",
-                  "createOption": "FromImage",
+                  "createOption": "Attach",
                   "managedDisk": {
                     "storageAccountType": "Premium_LRS"
                   }
