@@ -77,8 +77,7 @@
                     ]
                 }
             },
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930'))]",
+          "dependsOn": [            
             "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('virtualMachine_name'), 'nic'))]"
           ]
         },
