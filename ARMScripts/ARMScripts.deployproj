@@ -33,4 +33,9 @@
     <Content Include="README.md" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties json_1json__JSONSchema="https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
