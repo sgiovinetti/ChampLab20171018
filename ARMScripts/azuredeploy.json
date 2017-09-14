@@ -19,29 +19,15 @@
       "metadata": {
         "description": "Password for the Virtual Machine. Must be at least 12 char lenght."
       }
-    },
-    "securityRules_MSSQL_name": {
-      "defaultValue": "MSSQL",
-      "type": "string"
-    },
-    "securityRules_IPythonNB_name": {
-      "defaultValue": "IPythonNB",
-      "type": "string"
-    },
-    "securityRules_RTVSRemote_name": {
-      "defaultValue": "RTVSRemote",
-      "type": "string"
-    },
-    "securityRules_default_allow_rdp_name": {
-      "defaultValue": "default-allow-rdp",
-      "type": "string"
-    },
-    "networkInterfaces_id": {
-      "defaultValue": "/subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/resourceGroups/LabVirtualNetwork/providers/Microsoft.Network/virtualNetworks/ChampLabVNet/subnets/FrontEnd",
-      "type": "string"
     }
   },
-    "variables": {},
+  "variables": {
+    "securityRules_MSSQL_name": "MSSQL",
+    "securityRules_IPythonNB_name": "IPythonNB",
+    "securityRules_RTVSRemote_name": "RTVSRemote",
+    "securityRules_default_allow_rdp_name": "default-allow-rdp",
+    "networkInterfaces_id": "/subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/resourceGroups/LabVirtualNetwork/providers/Microsoft.Network/virtualNetworks/ChampLabVNet/subnets/FrontEnd"
+  },
     "resources": [
       {
         "type": "Microsoft.Compute/disks",
@@ -84,20 +70,16 @@
                         "sku": "standard-data-science-vm",
                         "version": "latest"
                     },
-                    "osDisk": {
-                       "createOption": "FromImage"                       
+                  "osDisk": {
+                    "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
+                    "caching": "ReadWrite",
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "Premium_LRS"
                     },
-                  "dataDisks": [
-                    {
-                      "lun": 0,
-                      "name": "[concat(parameters('virtualMachine_name'), '_OsDisk_1')]",
-                      "createOption": "attach",
-                      "managedDisk": {
-                        "id": "[resourceId('Microsoft.Compute/disks/', concat(parameters('virtualMachine_name'), '_OsDisk_1'))]"
-                      }
-                    }
-                  ]
-                },
+                    "dataDisks": [
+                    ]
+                  },
               "osProfile": {
                 "computerName": "[parameters('virtualMachine_name')]",
                 "adminUsername": "[parameters('adminUsername')]",
@@ -135,7 +117,7 @@
           },
           "timeZoneId": "UTC",
           "notificationSettings": {
-            "status": "Disabled",
+            "status": "Enabled",
             "timeInMinutes": 30
           },
           "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
@@ -157,7 +139,7 @@
               "properties": {               
                 "privateIPAllocationMethod": "Dynamic",
                 "subnet": {
-                  "id": "[parameters('networkInterfaces_id')]"
+                  "id": "[variables('networkInterfaces_id')]"
                 },
                 "primary": true,
                 "privateIPAddressVersion": "IPv4"
@@ -352,89 +334,89 @@
         },
         "dependsOn": []
       },
-      {
-        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_IPythonNB_name'))]",
-        "apiVersion": "2017-06-01",
-        "scale": null,
-        "properties": {      
-          "protocol": "Tcp",
-          "sourcePortRange": "*",
-          "destinationPortRange": "9999",
-          "sourceAddressPrefix": "*",
-          "destinationAddressPrefix": "*",
-          "access": "Allow",
-          "priority": 1010,
-          "direction": "Inbound",
-          "sourceAddressPrefixes": [],
-          "destinationAddressPrefixes": []
-        },
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
-        ]
-      },
-      {
-        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_MSSQL_name'))]",
-        "apiVersion": "2017-06-01",
-        "scale": null,
-        "properties": {   
-          "protocol": "TCP",
-          "sourcePortRange": "*",
-          "destinationPortRange": "1433",
-          "sourceAddressPrefix": "*",
-          "destinationAddressPrefix": "*",
-          "access": "Allow",
-          "priority": 1020,
-          "direction": "Inbound",
-          "sourceAddressPrefixes": [],
-          "destinationAddressPrefixes": []
-        },
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
-        ]
-      },
-      {
-        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_RTVSRemote_name'))]",
-        "apiVersion": "2017-06-01",
-        "scale": null,
-        "properties": {
-          "protocol": "TCP",
-          "sourcePortRange": "*",
-          "destinationPortRange": "5444",
-          "sourceAddressPrefix": "*",
-          "destinationAddressPrefix": "*",
-          "access": "Allow",
-          "priority": 1030,
-          "direction": "Inbound",
-          "sourceAddressPrefixes": [],
-          "destinationAddressPrefixes": []
-        },
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
-        ]
-      },
-      {
-        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-        "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', parameters('securityRules_default_allow_rdp_name'))]",
-        "apiVersion": "2017-06-01",
-        "scale": null,
-        "properties": {
-          "protocol": "TCP",
-          "sourcePortRange": "*",
-          "destinationPortRange": "3389",
-          "sourceAddressPrefix": "*",
-          "destinationAddressPrefix": "*",
-          "access": "Allow",
-          "priority": 1040,
-          "direction": "Inbound",
-          "sourceAddressPrefixes": [],
-          "destinationAddressPrefixes": []
-        },
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
-        ]
-      }
+          {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', variables('securityRules_IPythonNB_name'))]",
+            "apiVersion": "2017-06-01",
+            "scale": null,
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "9999",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1010,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+            ]
+          },
+          {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', variables('securityRules_MSSQL_name'))]",
+            "apiVersion": "2017-06-01",
+            "scale": null,
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1433",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1020,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+            ]
+          },
+          {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', variables('securityRules_RTVSRemote_name'))]",
+            "apiVersion": "2017-06-01",
+            "scale": null,
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "5444",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1030,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+            ]
+          },
+          {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(concat(parameters('virtualMachine_name'),'nsg'), '/', variables('securityRules_default_allow_rdp_name'))]",
+            "apiVersion": "2017-06-01",
+            "scale": null,
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1040,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('virtualMachine_name'),'nsg'))]"
+            ]
+          }
     ]
 }
