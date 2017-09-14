@@ -5,7 +5,7 @@
     "virtualMachine_name": {
       "type": "string",
       "metadata": {
-        "description": "Use the following name: vm-YourChampUsername-ds ex. vm-giost-ds"
+        "description": "Use the following name: vm-YourChampUsername-ds (ex. vm-giost-ds)"
       }
     },
     "adminUsername": {
@@ -28,26 +28,7 @@
     "securityRules_default_allow_rdp_name": "default-allow-rdp",
     "networkInterfaces_id": "/subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/resourceGroups/LabVirtualNetwork/providers/Microsoft.Network/virtualNetworks/ChampLabVNet/subnets/FrontEnd"
   },
-    "resources": [
-      {
-        "type": "Microsoft.Compute/disks",
-        "name": "[concat(parameters('virtualMachine_name'), '_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
-        "apiVersion": "2016-04-30-preview",
-        "location": "westeurope",
-        "scale": null,
-        "properties": {
-          "accountType": "Premium_LRS",
-          "osType": "Windows",
-          "creationData": {
-            "createOption": "FromImage",
-            "imageReference": {
-              "id": "/Subscriptions/c69776ff-76ea-410a-bf0c-182abc7ab55d/Providers/Microsoft.Compute/Locations/westeurope/Publishers/microsoft-ads/ArtifactTypes/VMImage/Offers/standard-data-science-vm/Skus/standard-data-science-vm/Versions/latest"
-            }
-          },
-          "diskSizeGB": 128
-        },
-        "dependsOn": []
-      },
+    "resources": [      
         {
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('virtualMachine_name')]",
@@ -70,11 +51,8 @@
                   "sku": "standard-data-science-vm",
                   "version": "latest"
                 },
-                "osDisk": {
-                  "osType": "Windows",
-                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
-                  "caching": "ReadWrite",
-                  "createOption": "Attach",
+                "osDisk": {                                   
+                  "createOption": "FromImage",
                   "managedDisk": {
                     "storageAccountType": "Premium_LRS"
                   }
