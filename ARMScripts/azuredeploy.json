@@ -60,26 +60,26 @@
             },
             "scale": null,
             "properties": {
-                "hardwareProfile": {
+              "hardwareProfile": {
                     "vmSize": "Standard_D2s_v3"
                 },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "microsoft-ads",
-                        "offer": "standard-data-science-vm",
-                        "sku": "standard-data-science-vm",
-                        "version": "latest"
-                    },
-                  "osDisk": {
-                    "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
-                    "caching": "ReadWrite",
-                    "createOption": "FromImage",
-                    "managedDisk": {
-                      "storageAccountType": "Premium_LRS"
-                    },
-                    "dataDisks": [
-                    ]
+              "storageProfile": {
+                "imageReference": {
+                  "publisher": "microsoft-ads",
+                  "offer": "standard-data-science-vm",
+                  "sku": "standard-data-science-vm",
+                  "version": "latest"
+                },
+                "osDisk": {
+                  "name": "[concat(parameters('virtualMachine_name'),'_OsDisk_1_e4e20a912d894a568b746d8b5183b930')]",
+                  "caching": "ReadWrite",
+                  "createOption": "FromImage",
+                  "managedDisk": {
+                    "storageAccountType": "Premium_LRS"
                   },
+                  "dataDisks": []
+                }
+              },
               "osProfile": {
                 "computerName": "[parameters('virtualMachine_name')]",
                 "adminUsername": "[parameters('adminUsername')]",
@@ -90,7 +90,7 @@
                 },
                 "secrets": []
               },
-                "networkProfile": {
+              "networkProfile": {
                     "networkInterfaces": [
                         {
                             "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('virtualMachine_name'), 'nic'))]"
