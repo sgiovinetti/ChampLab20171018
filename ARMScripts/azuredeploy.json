@@ -93,10 +93,11 @@
           "dailyRecurrence": {
             "time": "1900"
           },
-          "timeZoneId": "UTC",
+          "timeZoneId": "W. Europe Standard Time",
           "notificationSettings": {
-            "status": "Enabled",
-            "timeInMinutes": 30
+            "status": "Disabled",
+            "timeInMinutes": 15,
+            "webhookUrl": ""
           },
           "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
         },
