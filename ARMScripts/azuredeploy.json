@@ -5,7 +5,7 @@
     "virtualMachine_name": {
       "type": "string",
       "metadata": {
-        "description": "Use the following name: 'vm-<Your Champ Username>-ds' ex. 'vm-giost-ds'"
+        "description": "Use the following name: vm-<Your Champ Username>-ds ex. vm-giost-ds"
       }
     },
     "adminUsername": {
@@ -76,9 +76,9 @@
                   "createOption": "FromImage",
                   "managedDisk": {
                     "storageAccountType": "Premium_LRS"
-                  },
-                  "dataDisks": []
-                }
+                  }
+                },                
+                "dataDisks": []                
               },
               "osProfile": {
                 "computerName": "[parameters('virtualMachine_name')]",
