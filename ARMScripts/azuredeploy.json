@@ -105,6 +105,29 @@
           "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
         ]
       },
+	  {
+		"type": "Microsoft.Compute/virtualMachines/extensions",
+		"name": "[concat(parameters('virtualMachine_name'), '/CustomScriptExtension')]",
+		"apiVersion": "2016-04-30-preview",
+		"location": "westeurope",
+		"scale": null,
+		"properties": {
+			"publisher": "Microsoft.Compute",
+			"type": "CustomScriptExtension",
+			"typeHandlerVersion": "1.7",
+			"autoUpgradeMinorVersion": true,
+			"settings": {
+				"fileUris": [
+					"https://raw.githubusercontent.com/sgiovinetti/ChampLab20171018/master/ARMScripts/VMStartup.ps1"
+				],
+				"commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', 'VMStartup.ps1')]"
+			},
+			"protectedSettings": {}
+		},
+		"dependsOn": [
+			"[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachine_name'))]"
+		]
+	  },	  
       {
         "type": "Microsoft.Network/networkInterfaces",
         "name": "[concat(parameters('virtualMachine_name'), 'nic')]",
