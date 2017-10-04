@@ -22,7 +22,6 @@ Start-Process "c:\Azure-Lab-20171018\Install\dmg.msi" -ArgumentList '/quiet' -Wa
 
 # Download and extract the course files
 Invoke-WebRequest  "https://github.com/sgiovinetti/ChampLab20171018/raw/master/LabFiles.zip" -OutFile "c:\Azure-Lab-20171018\Install\LabFiles.zip"
-#Requires PWS 5.0 --- Expand-Archive "c:\Azure-Lab-20171018\Install\LabFiles.zip" "c:\tmp"
 
 Add-Type -assembly "system.io.compression.filesystem"
 [io.compression.zipfile]::ExtractToDirectory("c:\Azure-Lab-20171018\Install\LabFiles.zip", "c:\tmp")
