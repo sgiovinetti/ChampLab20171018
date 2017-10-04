@@ -20,6 +20,10 @@ Invoke-WebRequest "https://download.microsoft.com/download/E/4/7/E4771905-1079-4
 #Install the new version of Data Management Gateway
 Start-Process "c:\Azure-Lab-20171018\Install\dmg.msi" -ArgumentList '/quiet' -Wait
 
+#Start the Data Management Gateway Service 
+Start-Service -displayname "Integration Runtime Service"
+
+
 # Download and extract the course files
 Invoke-WebRequest  "https://github.com/sgiovinetti/ChampLab20171018/raw/master/LabFiles.zip" -OutFile "c:\Azure-Lab-20171018\Install\LabFiles.zip"
 
