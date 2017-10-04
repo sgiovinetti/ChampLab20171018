@@ -8,7 +8,7 @@ Param (
 )
 
 #Create folders
-New-Item -ItemType Directory c:\Azure-Lab-20171018\Install
+New-Item -ItemType Directory "c:\Azure-Lab-20171018\Install"
 
 #Uninstall the old version of the Data Management Gateway
 $app = Get-WmiObject -Class Win32_Product | Where-Object {$_.Name -match "Microsoft Data Management Gateway"}
